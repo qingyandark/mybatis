@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.qingyandark.mapper.BrandMapper">
+
+    <select id="selectAll" resultMap="brandResultMap">
+        select *
+        from tb_brand;
+    </select>
+    
+<!--    1 -->
+<!--    <select id="selectAll" resultType="cn.qingyandark.pojo.Brand">-->
+<!--        select *-->
+<!--        from tb_brand;-->
+<!--    </select>-->
+
+<!--    2-->
+<!--    sql -->
+<!--    <sql id = "brand_column">-->
+<!--        id, brand_name as name, company_name as company, ordered, description, status;-->
+<!--    </sql>-->
+<!--    <select id="selectAll" resultType="cn.qingyandark.pojo.Brand">-->
+<!--        <include refid="brand_column" />-->
+<!--    </select>-->
+
+<!--    3-->
+    <resultMap id="brandResultMap" type="cn.qingyandark.pojo.Brand">
+        <result column="brand_name" property="brand_name"></result>
+        <result column="company_name" property="company_name"></result>
+        <result column="STATUS" property="STATUS"></result>
+    </resultMap>
+    
+
+<!--
+    参数占位符
+    1. #{}: 会将其替换为?
+    2. ${}: 拼接sql，存在sql注入问题
+    3. 使用时机
+        * 参数传递: #{}
+        * 表名或列名不固定: ${}
+    * 参数类型: parameterType 可以省略
+    * 特殊符号处理: eg: <
+        * 转义: &lt;
+        * CDAFA区:
+            <![CDATA[
+                <
+            ]]>
+
+-->
+    <select id="selectById" resultMap="brandResultMap" >
+        select *
+        from tb_brand where
+
+        id = #{id};
+    </select>
+
+
+<!--    静态-->
+<!--    <select id="selectByCondition" resultMap="brandResultMap" >-->
+<!--        select *-->
+<!--        from tb_brand-->
+<!--        where-->
+<!--            STATUS = #{STATUS} and-->
+<!--            company_name like #{company_name} and-->
+<!--            brand_name like #{brand_name }-->
+<!--    </select>-->
+
+    <!--
+        动态
+            * if: 条件判断
+                * test: 逻辑表达式
+            * 问题:
+                * 恒等式
+                * <where> 替换 where
+    -->
+    <select id="selectByCondition" resultMap="brandResultMap" >
+        select *
+        from tb_brand
+--         where 1 = 1
+        <where>
+            <if test="STATUS != null">
+                and STATUS = #{STATUS}
+            </if>
+            <if test="company_name != null and company_name != '' ">
+                and company_name like #{company_name}
+            </if>
+            <if test="brand_name != null and brand_name != '' ">
+                and brand_name like #{brand_name }
+            </if>
+        </where>
+    </select>
+
+    <!--
+        单条件查询
+            otherwise
+            <where>
+    -->
+    <select id="selectByConditionSingle" resultMap="brandResultMap">
+        select *
+        from tb_brand
+        <where>
+            <choose> <!-- switch case -->
+                <when test="STATUS != null">
+                    STATUS = #{STATUS}
+                </when>
+                <when test="company_name != null and company_name != '' ">
+                    company_name like #{company_name}
+                </when>
+                <when test="brand_name != null and brand_name != '' ">
+                    brand_name like #{brand_name }
+                </when>
+<!--                <otherwise>-->
+<!--                    1 = 1-->
+<!--                </otherwise>-->
+            </choose>
+        </where>
+    </select>
+
+
+<!--    useGeneratedKeys="true" keyProperty="id" 获取插入的id值并赋值给id -->
+    <insert id="add" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_brand (brand_name, company_name, ordered, DESCRIPTION, STATUS)
+        values (#{brand_name}, #{company_name}, #{ordered}, #{DESCRIPTION}, #{STATUS});
+    </insert>
+
+
+
+     <update id="update">
+        update tb_brand
+        <set>
+            <if test="brand_name != null and brand_name != '' ">
+                brand_name = #{brand_name},
+            </if>
+            <if test="company_name != null and company_name != '' ">
+                company_name = #{company_name},
+            </if>
+            <if test="ordered != null">
+                ordered = #{ordered},
+            </if>
+            <if test="DESCRIPTION != null and DESCRIPTION != '' ">
+                DESCRIPTION = #{brand_name},
+            </if>
+            <if test="STATUS != null">
+                STATUS = #{STATUS},
+            </if>
+        </set>
+        where id = #{id};
+    </update>
+
+
+    <delete id="deleteById">
+        delete from tb_brand
+        where id = #{id}
+    </delete>
+
+    <!--
+        void deleteByIds(int[] id);
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+
+        void deleteByIds(@Param("ids") int[] ids);
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+    -->
+    <delete id="deleteByIds">
+        delete from tb_brand
+        where id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+    </delete>
+</mapper>

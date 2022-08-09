@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--日志格式应用spring boot默认的格式，也可以自己更改-->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!--定义日志存放的位置，默认存放在项目启动的相对路径的目录-->
+    <springProperty scope="context" name="LOG_PATH" source="log.path" defaultValue="app-log"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ERROR 日志记录器，日期滚动记录 -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <!-- 归档的日志文件的路径，%d{yyyy-MM-dd}指定日期格式，%i指定索引 -->
+            <fileNamePattern>${LOG_PATH}/ERROR/%d{yyyy-MM-dd}/ERROR.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <!-- 追加方式记录日志 -->
+        <append>true</append>
+
+        <!-- 日志文件的格式 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+
+        <!-- 此日志文件只记录error级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- INFO 日志记录器，日期滚动记录 -->
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <!-- 归档的日志文件的路径，%d{yyyy-MM-dd}指定日期格式，%i指定索引 -->
+            <fileNamePattern>${LOG_PATH}/INFO/%d{yyyy-MM-dd}/INFO.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <!-- 追加方式记录日志 -->
+        <append>true</append>
+
+        <!-- 日志文件的格式 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+
+        <!-- 此日志文件只记录info级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- WARN 日志记录器，日期滚动记录 -->
+    <appender name="FILE_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <!-- 归档的日志文件的路径，%d{yyyy-MM-dd}指定日期格式，%i指定索引 -->
+            <fileNamePattern>${LOG_PATH}/WARN/%d{yyyy-MM-dd}/WARN.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <!-- 追加方式记录日志 -->
+        <append>true</append>
+
+        <!-- 日志文件的格式 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+
+        <!-- 此日志文件只记录warn级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>warn</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- ********************************************************************************************** -->
+    <!-- **** local环境时，同时写 INFO,WARN,ERROR 日志文件和控制台日志 **** -->
+    <!-- ********************************************************************************************** -->
+    <springProfile name="local">
+        <!--记录到文件-->
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE_INFO"/>
+            <appender-ref ref="FILE_WARN"/>
+            <appender-ref ref="FILE_ERROR"/>
+        </root>
+    </springProfile>
+
+    <!-- ********************************************************************************************** -->
+    <!-- **** 非local环境时，写 INFO,WARN,ERROR 日志文件，不写控制台日志 **** -->
+    <!-- ********************************************************************************************** -->
+    <springProfile name="!local">
+        <!--记录到文件-->
+        <root level="info">
+            <!--<appender-ref ref="STDOUT"/>-->
+            <appender-ref ref="FILE_INFO"/>
+            <appender-ref ref="FILE_WARN"/>
+            <appender-ref ref="FILE_ERROR"/>
+        </root>
+    </springProfile>
+
+</configuration>
